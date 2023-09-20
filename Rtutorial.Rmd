@@ -1,0 +1,170 @@
+
+---
+title: "R Tutorial"
+author: "Dirk Moore"
+date: "`r Sys.Date()`"
+#output: rmarkdown::html_vignette
+output:
+  #mathjax:  default
+  #  html_document:
+  word_document:
+  fig_caption:  true
+  toc: true
+#section_numbering: true
+#css: ggsci.css
+#output:
+#  word_document:
+#    reference_docx: word-styles-reference-03.docx
+#output: pdf_document
+#fontsize: 10pt
+vignette: >
+  %\VignetteIndexEntry{protlocassign}
+  %\VignetteEngine{knitr::rmarkdown}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  #collapse = TRUE,
+  comment = "",
+  fig.width = 4,
+  fig.height = 4,
+	message = FALSE,
+	warning = FALSE,
+	tidy.opts = list(
+		keep.blank.line = TRUE,
+		width.cutoff = 150
+		),
+	options(width = 150),
+	eval = TRUE
+)
+knitr::opts_knit$set(root.dir = 'c:/RGit/RU_BIST0625')
+```
+
+This is a short R session that serves a tutorial for those just getting started in R. The best way to run R is via the R Studio interface, since it provides a convenient arrangement of panes, one for the R command prompt, one for an editor, and two more for plots and other displays. For this introductory tutorial, you can just enter these commands directly at the R command prompt.
+
+## variables, vectors, and simple operations
+
+To get a feel for how R works, enter a numerical expressions, such as these:
+
+```{r, echo=TRUE}
+2+3
+2^3
+2**3  # same as the previous expression
+```
+
+Note that the `#` character indicates a comment, which of course is not executed. The `[1]`, which is perhaps superfluous here, just indicates that the printed result is the first (and in this simple case only) element of the result. (The purpose of the outpur format will become clear when you look at long vectors that stretch out over more than one line.)
+
+It is possible to assign values to variables using the `<-` symbol:
+
+```{r, echo=TRUE}
+x <- 3
+y <- 2
+y^x
+```
+
+In addtion to constants, R can work with vectors, as shown in the following. Here, the `c` function is used to combine numbers into a vector.
+
+```{r, echo=TRUE}
+x.vec <- c(1, 3.5, 7)
+y.vec <- c(2, 7, 8.6)
+x.vec
+y.vec
+```
+
+Any legal variable name may be used for a vector; the `.vec` notation is just a readability aid. Note that, unlike in some other systems, variable names are case sensitive; lower and upper case letters result in distinct variables.
+
+One may perform operations on vectors, as long as they are the same length:
+
+```{r, echo=TRUE}
+x.vec + y.vec
+x.vec + 2*y.vec
+```
+
+The `c` function may be used to combine two vectors:
+
+```{r, echo=TRUE}
+z.vec <- c(x.vec, y.vec)
+z.vec
+```
+
+Brackets may be used to access individual components of a vector. For example, to access the second, third, and fourth elements of `z.vec`, use this:
+
+```{r, echo=TRUE}
+z.vec[2:4]
+```
+
+The notation `2:4` is shorthand for `c(2, 3, 4)`.
+
+Vectors may also contain character variables:
+
+```{r, echo=TRUE}
+abc.vec <- c("This", "is", "a", "vector", "of", "character", "variables")
+abc.vec
+```
+
+To end a session, you may enter the quit function with no arguments, `q()`.
+
+## Working with data in data frames
+
+Data frames are the principal way that data sets are stored in the R environment. Suppose you have a data set `phCavities.csv` stored on your computer in the directory `C:\temp`. To read this data into R, you need to set your working directory to the location of the data. Here, the backslash character needs to be doubled for R to interpret it correctly. (The first `\` is and escape character that tells R to interpret the next `\` as an actual backslash character.)
+
+Next, we may check that R is pointing there by using the `getwd` command.
+
+Finally, we read in the data. This data set has as its first row the names of the variables and, in succeeding rows, the values of those variables for all of the subjects. The data are "comma separated values", hence the file extension `.csv`. To read in the date, use the "read.csv" function.
+
+```{r, echo=TRUE}
+setwd("C:\\RGit\\RU_BIST0625")
+getwd()
+phCavities <- read.csv("phCavities.csv", header=T)
+
+```
+
+We may use the `str` command to show the structure of the data set, and the `head` command to examine the first few rows
+
+```{r, echo=TRUE}
+str(phCavities)
+head(phCavities)
+```
+
+Be aware that in R, variables are case-sensitive. Thus, `phCavities` and `phcavities` would denote different variables.
+
+One way to access the different varialbes in `phCavities` is via the `$` operator:
+
+```{r, echo=TRUE}
+phCavities$pH
+phCavities$grp
+```
+
+Alternatively, one may `attach` the data frame to allow direct access to the variables:
+
+```{r, echo=TRUE}
+attach(phCavities)
+pH
+```
+
+
+Be very careful when using the `attach` command, as it can lead to confusion. Suppose, for example, you issue the following command:
+
+```{r, echo=TRUE}
+pH <- 5
+pH
+```
+
+Now you have defined the variable `pH` in the workspace to have a different value than in the `phCavities` data frame, and the workspace assignment takes precedence. To see the precedence, use the `search()` command:
+
+```{r, echo=TRUE}
+search()
+```
+
+When you type the variable name 'pH' R first searches the workspace (`.GlobalEnv`) and it finds `pH` there, which has the value 5. But if you remove this variable via the `rm` command and do the same, this is what you get:
+
+```{r, echo=TRUE}
+rm(pH)
+pH
+```
+
+Now when you type `pH` R searches `.GlobalEnv` and does not find `pH` there (since you just removed it). Next it searches the next object in the search path, which is `pHCavities`, and finds it there.
+
+Understanding the search path will help the user to avoid confusion on what variable is being accessed.
+
+
